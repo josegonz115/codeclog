@@ -1,0 +1,45 @@
+# Local development stack.
+#
+#   docker compose up -d db     # just Postgres; run the API from your IDE or ./gradlew bootRun
+#   docker compose up --build   # the whole thing, as it runs in production
+services:
+  db:
+    image: postgres:18.6-alpine
+    container_name: codeclog-db
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-codeclog}
+      POSTGRES_USER: ${POSTGRES_USER:-codeclog}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-codeclog}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      # Postgres 18 moved PGDATA to /var/lib/postgresql/<major>/docker and declares
+      # /var/lib/postgresql as the volume. Mounting the old .../data path here would leave the
+      # real cluster inside the container and silently lose it on `compose down`.
+      - codeclog-pgdata:/var/lib/postgresql
+    healthcheck:
+      # The API waits on this, so a `compose up` never races Postgres's startup.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-codeclog} -d ${POSTGRES_DB:-codeclog}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  api:
+    build:
+      context: ./api
+    container_name: codeclog-api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-codeclog}
+      DATABASE_USERNAME: ${POSTGRES_USER:-codeclog}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-codeclog}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8080}
+    ports:
+      - "${API_PORT:-8080}:8080"
+
+volumes:
+  codeclog-pgdata:

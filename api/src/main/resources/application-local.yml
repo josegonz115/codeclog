@@ -1,0 +1,23 @@
+# Developer conveniences only. Never active in a deployed environment.
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+management:
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  structured:
+    format:
+      console: ""
+  pattern:
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%5p) %clr([%X{correlationId:-              }]){faint} %clr(%-40.40logger{39}){cyan} : %m%n%wEx"
+  level:
+    # Turn these on when hunting N+1s (§10).
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: INFO

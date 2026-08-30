@@ -1,0 +1,78 @@
+# Defaults here are the production-safe ones. The `local` profile relaxes them for development;
+# nothing in this file assumes a developer machine.
+spring:
+  application:
+    name: codeclog-api
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/codeclog}
+    username: ${DATABASE_USERNAME:codeclog}
+    password: ${DATABASE_PASSWORD:codeclog}
+    hikari:
+      pool-name: codeclog-pool
+      maximum-pool-size: ${DATABASE_POOL_SIZE:10}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  error:
+    whitelabel:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  info:
+    env:
+      enabled: true
+  observations:
+    key-values:
+      application: ${spring.application.name}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    # §3 asks for OpenAPI 3.2.0. springdoc 3.1.0 — the latest — cannot emit it: the underlying
+    # swagger-core SpecVersion enum only defines 3.0 and 3.1. Pinned explicitly so the ceiling is
+    # visible; bump when swagger-core ships 3.2 support.
+    version: openapi_3_1
+  swagger-ui:
+    path: /docs
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+codeclog:
+  # Comma-separated in the env var; bound to a List<String>.
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  public-url: ${PUBLIC_URL:http://localhost:8080}
+
+logging:
+  # Structured JSON by default so deployed logs are queryable; `local` overrides to plain text.
+  structured:
+    format:
+      console: ecs
+  level:
+    root: INFO
+    com.codeclog: INFO

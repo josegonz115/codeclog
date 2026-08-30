@@ -1,0 +1,9 @@
+# Test-profile config: keep the container's own chatter down and logs readable in CI output.
+logging:
+  structured:
+    format:
+      console: ""
+  level:
+    org.testcontainers: WARN
+    com.github.dockerjava: WARN
+    tc: WARN
