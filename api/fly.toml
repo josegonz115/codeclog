@@ -1,0 +1,42 @@
+# Fly.io app config. Lives in api/ because that directory is the Docker build context.
+#
+# Deliberately absent: any service or port declaration for 9090. The management port
+# (actuator: health detail, prometheus) must stay reachable only over Fly's private 6PN
+# network — declaring it here would route it to the internet. Fly's own metrics scraper
+# reads it privately via [[metrics]] below.
+app = "codeclog-api"
+primary_region = "lax"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PUBLIC_URL = "https://codeclog-api.fly.dev"
+  # The deployed frontend origin replaces this in M2; until then only local dev calls the API.
+  CORS_ALLOWED_ORIGINS = "http://localhost:5173"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Suspend when idle: a portfolio app doesn't need a warm machine 24/7, and resume from
+  # suspend is fast enough that the first request just feels slow, not broken.
+  auto_stop_machines = "suspend"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "3s"
+    grace_period = "30s"
+    method = "GET"
+    path = "/readyz"
+
+# Fly scrapes this over the private network and serves it in its hosted Prometheus/Grafana.
+[[metrics]]
+  port = 9090
+  path = "/actuator/prometheus"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  # 256MB is too tight for a Spring Boot 4 JVM (MaxRAMPercentage=75 → ~192MB heap).
+  memory = "512mb"
