@@ -1,6 +1,6 @@
-package com.codeclog.api.logging;
+package com.codeclog.api.common.logging;
 
-import com.codeclog.api.config.CorrelationIdConstants;
+import com.codeclog.api.common.config.CorrelationIdConstants;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

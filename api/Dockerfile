@@ -7,7 +7,7 @@ COPY gradlew ./
 COPY gradle gradle
 COPY settings.gradle.kts build.gradle.kts ./
 COPY config config
-RUN ./gradlew --no-daemon dependencies > /dev/null 2>&1 || true
+RUN ./gradlew --no-daemon --quiet dependencies
 
 COPY src src
 RUN ./gradlew --no-daemon clean bootJar -x test

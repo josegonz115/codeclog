@@ -20,6 +20,9 @@ class OpenApiDocumentIT extends AbstractIntegrationTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).contains("\"title\":\"CodecLog API\"").contains("\"openapi\":\"3.");
+        // Asserted in the form the deployed container actually serves, not just what a local JVM
+        // produces — see the OPEN entry in DECISIONS.md.
+        assertThat(response.getBody()).contains("\"license\":{\"name\":\"MIT\"}");
     }
 
     @Test

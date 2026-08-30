@@ -1,8 +1,8 @@
-package com.codeclog.api.logging;
+package com.codeclog.api.common.logging;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.codeclog.api.config.CorrelationIdConstants;
+import com.codeclog.api.common.config.CorrelationIdConstants;
 import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

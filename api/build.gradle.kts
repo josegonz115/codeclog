@@ -52,6 +52,9 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:testcontainers-junit-jupiter")
     testImplementation("org.testcontainers:testcontainers-postgresql")
+    // Steam and IGDB are stubbed here from M3 onward; no test ever hits a live external API.
+    // The standalone (shaded) build keeps WireMock's Jetty off the Spring test classpath.
+    testImplementation("org.wiremock:wiremock-standalone:3.13.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -96,6 +99,7 @@ tasks.withType<Test>().configureEach {
     }
 }
 
+// Fixed name so the Dockerfile does not have to know the project version.
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     archiveFileName.set("codeclog-api.jar")
 }

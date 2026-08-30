@@ -7,9 +7,8 @@ months, and lets them review those games for friends and followers to read, like
 Existing backlog trackers make you log everything by hand; existing review sites have no social
 graph. CodecLog is the combination.
 
-> **Status: Milestone 1 — Foundation.** The API skeleton, database, migration path, health checks,
-> API docs and CI are in place and deployable. No product features yet; those land in M2 onwards.
-> See [Roadmap](#roadmap).
+> **Milestone 1 — Foundation.** The API skeleton, database, migration path, health checks, API docs
+> and CI are in place. No product features yet; those land in M2 onwards. See [Roadmap](#roadmap).
 
 ---
 
@@ -77,15 +76,17 @@ so no `DOCKER_HOST` juggling is required.
 codeclog/
 ├── api/                        Spring Boot service
 │   ├── src/main/java/com/codeclog/api/
-│   │   ├── config/             Configuration properties, CORS, OpenAPI
-│   │   ├── error/              The single error envelope and its handler
-│   │   └── logging/            Request correlation ids
+│   │   └── common/             Cross-cutting only; features sit alongside it
+│   │       ├── config/         Configuration properties, CORS, OpenAPI
+│   │       ├── error/          The single error envelope and its handler
+│   │       └── logging/        Request correlation ids
 │   ├── src/main/resources/
 │   │   ├── db/migration/       Flyway migrations — the schema's only source of truth
 │   │   └── application*.yml    Production-safe defaults; `local` relaxes them
 │   ├── src/test/java/.../support/   Testcontainers harness
 │   └── Dockerfile              Multi-stage, layered, non-root
 ├── web/                        React SPA — arrives in M2
+├── DECISIONS.md                Running log of choices and their tradeoffs
 ├── docker-compose.yml
 └── .github/workflows/ci.yml
 ```
@@ -94,7 +95,8 @@ codeclog/
 
 ## Design notes
 
-The decisions worth defending, and the point at which each would flip.
+The decisions worth defending, and the point at which each would flip. Choices made during the
+build are logged as they happen in [DECISIONS.md](DECISIONS.md).
 
 ### One datastore
 
@@ -197,15 +199,20 @@ additionally build and publish the API image to GHCR.
 
 ## Roadmap
 
-| | Milestone | State |
-| --- | --- | --- |
-| **M1** | Foundation — project, Postgres, Flyway, health, CI, OpenAPI, Testcontainers harness | **done** |
-| M2 | Auth and design system — Steam OpenID, Google OAuth, JWT, handle onboarding, React shell, CRT terminal primitives | next |
-| M3 | Library and sync — `LibraryProvider`, Steam client, IGDB client, sync jobs, backlog views, 180-day dust filter | |
-| M4 | Reviews — CRUD, game detail, manual entry via IGDB search | |
-| M5 | Social — follows, public profiles, feed | |
-| M6 | Engagement — likes, comments, optimistic UI | |
-| M7 | Polish and launch — seed data, empty states, responsive pass, accessibility audit, feed load test | |
+Each milestone ends deployable and demoable.
+
+| | Milestone |
+| --- | --- |
+| M1 | Foundation — project, Postgres, Flyway, health, CI, OpenAPI, Testcontainers and WireMock harnesses |
+| M2 | Auth and design system — Steam OpenID, Google OAuth, JWT, handle onboarding, React shell, CRT terminal primitives |
+| M3 | Library and sync — `LibraryProvider`, Steam client, IGDB client, sync jobs, backlog views, 180-day dust filter |
+| M4 | Reviews — CRUD, game detail, manual entry via IGDB search |
+| M5 | Social — follows, public profiles, feed |
+| M6 | Engagement — likes, comments, optimistic UI |
+| M7 | Polish and launch — seed data, empty states, responsive pass, accessibility audit, feed load test |
+
+Live progress is tracked against a per-item checklist rather than here, so this table stays a
+description of scope and cannot drift out of date.
 
 **All profiles are public.** Every profile, library and review is world-readable, including to
 logged-out visitors. There is no private-profile option in the MVP, and signup says so plainly.

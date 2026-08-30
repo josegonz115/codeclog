@@ -1,4 +1,4 @@
-package com.codeclog.api.error;
+package com.codeclog.api.common.error;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;

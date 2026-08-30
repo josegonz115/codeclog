@@ -1,12 +1,12 @@
-package com.codeclog.api.error;
+package com.codeclog.api.common.error;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.codeclog.api.config.CodeclogProperties;
-import com.codeclog.api.config.WebConfig;
+import com.codeclog.api.common.config.CodeclogProperties;
+import com.codeclog.api.common.config.WebConfig;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -35,7 +35,11 @@ import org.springframework.web.bind.annotation.RestController;
 @WebMvcTest(controllers = GlobalExceptionHandlerTest.ProbeController.class)
 @EnableConfigurationProperties(CodeclogProperties.class)
 @Import({GlobalExceptionHandlerTest.ProbeController.class, GlobalExceptionHandler.class, WebConfig.class})
-@TestPropertySource(properties = "codeclog.allowed-origins=http://localhost:5173")
+@TestPropertySource(
+        properties = {
+            "codeclog.allowed-origins=http://localhost:5173",
+            "codeclog.public-url=http://localhost:8080"
+        })
 class GlobalExceptionHandlerTest {
 
     @Autowired private MockMvc mockMvc;

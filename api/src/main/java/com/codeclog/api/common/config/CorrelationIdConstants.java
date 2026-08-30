@@ -1,4 +1,4 @@
-package com.codeclog.api.config;
+package com.codeclog.api.common.config;
 
 /** Shared name for the request correlation id, used by the filter, the MDC and CORS exposure. */
 public final class CorrelationIdConstants {

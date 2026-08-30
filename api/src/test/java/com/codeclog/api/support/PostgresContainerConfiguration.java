@@ -29,7 +29,6 @@ public class PostgresContainerConfiguration {
         return new PostgreSQLContainer(POSTGRES_IMAGE)
                 .withDatabaseName("codeclog")
                 .withUsername("codeclog")
-                .withPassword("codeclog")
-                .withReuse(true);
+                .withPassword("codeclog");
     }
 }

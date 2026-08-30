@@ -1,4 +1,4 @@
-package com.codeclog.api.error;
+package com.codeclog.api.common.error;
 
 import jakarta.validation.ConstraintViolationException;
 import java.util.Comparator;
