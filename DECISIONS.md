@@ -8,6 +8,28 @@ Newest first. Each entry: what was decided, what it was chosen over, and what wo
 
 ---
 
+## 2026-08-30 — Actuator moved to a separate management port
+
+`/actuator/*` now listens on its own port (9090, `MANAGEMENT_PORT`) instead of sharing the app
+port. Chosen over the two alternatives for closing the exposed-Prometheus hole before deploy:
+
+- **Auth on `/actuator/**`** would pull Spring Security into M1, which is M2's scope — and a
+  scraper would then need credentials managed somewhere.
+- **Dropping `prometheus`/`metrics` from the exposure list** closes the hole by deleting the
+  feature; §3 names Prometheus as part of the operational story.
+
+The port split works identically on Fly.io and Railway: both route exactly one declared port to
+the internet, so the management port is reachable only over the platform's private network — which
+is where a scraper runs anyway. The platform health check still needs a public path, so the
+liveness/readiness probes are republished on the app port as `/livez` and `/readyz`
+(`add-additional-paths`), status code only.
+
+What would change it: real auth infrastructure arriving in M2 makes an authenticated single-port
+setup possible, but the split remains the simpler operational boundary and there is no current
+reason to undo it.
+
+---
+
 ## 2026-08-30 — OPEN: the served OpenAPI document differs between tests and the container
 
 Adding `.url(...)` to the OpenAPI licence object produces

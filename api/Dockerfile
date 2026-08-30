@@ -27,12 +27,15 @@ COPY --from=build --chown=codeclog:codeclog /workspace/extracted/snapshot-depend
 COPY --from=build --chown=codeclog:codeclog /workspace/extracted/application/ ./
 
 USER codeclog
-EXPOSE 8080
+# 8080 is the app; 9090 is actuator (health detail, prometheus) — private network only, never
+# routed to the internet by the deploy platform.
+EXPOSE 8080 9090
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75 -XX:+UseSerialGC -Djava.security.egd=file:/dev/./urandom"
 
-# The platform's own probe should hit /actuator/health/readiness; this is the local fallback.
+# The platform's own probe should hit /readyz; this liveness check is the local fallback. Both
+# probes are republished on the app port precisely so health checks don't need the management port.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-    CMD wget -qO- http://localhost:8080/actuator/health/liveness || exit 1
+    CMD wget -qO- http://localhost:8080/livez || exit 1
 
 # `extract --launcher` writes an exploded layout rather than a jar, so the launcher is invoked
 # directly. Class loading reads real files instead of a nested archive, which starts faster.

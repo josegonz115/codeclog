@@ -32,6 +32,12 @@ server:
       enabled: false
 
 management:
+  server:
+    # Actuator listens on its own port so nothing operational is reachable through the public
+    # port. Fly.io and Railway route only the declared app port to the internet; this one stays
+    # on the platform's private network, where the Prometheus scraper lives. Without this split,
+    # /actuator/prometheus would be world-readable after deploy.
+    port: ${MANAGEMENT_PORT:9090}
   endpoints:
     web:
       exposure:
@@ -40,6 +46,10 @@ management:
     health:
       probes:
         enabled: true
+        # The platform's health check and the Docker HEALTHCHECK still need something on the
+        # public port: this republishes the probes there as /livez and /readyz. They return
+        # status only — detail stays on the management port.
+        add-additional-paths: true
       show-details: never
   metrics:
     tags:

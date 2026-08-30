@@ -49,10 +49,14 @@ Then:
 
 | | |
 | --- | --- |
-| Health | <http://localhost:8080/actuator/health> |
+| Health probe | <http://localhost:8080/readyz> |
 | API docs (Swagger UI) | <http://localhost:8080/docs> |
 | OpenAPI document | <http://localhost:8080/v3/api-docs> |
-| Prometheus metrics | <http://localhost:8080/actuator/prometheus> |
+| Health detail | <http://localhost:9090/actuator/health> |
+| Prometheus metrics | <http://localhost:9090/actuator/prometheus> |
+
+Actuator lives on its own port (9090) so that in production nothing operational is publicly
+reachable — the deploy platform routes only the app port to the internet.
 
 A third option needs no Compose at all — `./gradlew bootTestRun` starts the API against a throwaway
 Postgres container, which is the fastest way to get a guaranteed-clean database.
@@ -164,9 +168,14 @@ route. Clients branch on `code`, never on message text. Validation failures carr
 
 ## Operations
 
-- **Health.** `/actuator/health`, plus `/actuator/health/liveness` and `/actuator/health/readiness`
-  for the deployment platform. Component detail is off by default and shown only under the `local`
-  profile — an unauthenticated caller learns whether the service is up, and nothing else.
+- **Two ports.** The app listens on 8080; everything under `/actuator` listens on a separate
+  management port (9090). The deploy platform exposes only the app port publicly, so health
+  detail and metrics are reachable solely over the private network. The liveness and readiness
+  probes are republished on the app port as `/livez` and `/readyz` — status only — because that
+  is the port platform health checks hit.
+- **Health.** `/actuator/health`, with `/actuator/health/liveness` and `/actuator/health/readiness`
+  broken out. Component detail is off by default and shown only under the `local` profile — an
+  unauthenticated caller learns whether the service is up, and nothing else.
 - **Metrics.** Micrometer with a Prometheus scrape endpoint, tagged with the application name.
   Custom metrics arrive with the components they measure: sync duration, games synced per run,
   Steam API call count and failure rate, feed query latency.
